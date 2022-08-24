@@ -41,13 +41,13 @@ public class ReaderServiceImpl implements ReaderService {
         accountQueryWrapper.eq("role", 0);
         result.put("totalAccount", accountMapper.selectCount(accountQueryWrapper));
         //未批改题目数量
-        Long answer_num = answerMapper.selectCount(null);
-        Long judge_num = judgeMapper.selectCount(null);
+        Integer answer_num = answerMapper.selectCount(null);
+        Integer judge_num = judgeMapper.selectCount(null);
         result.put("totalQuestions", answer_num - judge_num);
         //取出这个比赛对应的所有的problem总数
         QueryWrapper<Problem> problemQueryWrapper = new QueryWrapper<>();
         problemQueryWrapper.eq("unit_id", unit);
-        Long problem_num = problemMapper.selectCount(problemQueryWrapper);
+        Integer problem_num = problemMapper.selectCount(problemQueryWrapper);
         //userList数据集合
         List<StudentDetailVO> studentDetailVOS = new ArrayList<>();
         //得到答题人list
@@ -68,7 +68,7 @@ public class ReaderServiceImpl implements ReaderService {
             //总题数
             studentDetailVO.setTotal(problem_num);
             //已经完成的题数
-            Long finished_num = answerMapper.selectCount(answerQueryWrapper);
+            Integer finished_num = answerMapper.selectCount(answerQueryWrapper);
             studentDetailVO.setFinished(finished_num);
             //开始的时间,可以直接从token里面拿,不过还是偷懒吧
             studentDetailVO.setBegin("2022年9月1日");
@@ -80,7 +80,7 @@ public class ReaderServiceImpl implements ReaderService {
             QueryWrapper<Judge> judgeQueryWrapper=new QueryWrapper<>();
             //答题人的uid对应的judge总数
             judgeQueryWrapper.eq("answer_id",uid);
-            Long judge_person_num = judgeMapper.selectCount(judgeQueryWrapper);
+            Integer judge_person_num = judgeMapper.selectCount(judgeQueryWrapper);
             studentDetailVO.setFinished_correcting(judge_person_num);
             studentDetailVOS.add(studentDetailVO);
         }

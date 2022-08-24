@@ -12,10 +12,10 @@ public class StudentDetailVO {
      * 答题人的学号
      */
     String stuId;
-    Long total;
-    Long finished;
+    Integer total;
+    Integer finished;
     String begin;
     String end;
-    Long total_correcting;
-    Long finished_correcting;
+    Integer total_correcting;
+    Integer finished_correcting;
 }
