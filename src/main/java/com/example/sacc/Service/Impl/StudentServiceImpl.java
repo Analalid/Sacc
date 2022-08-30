@@ -1,8 +1,9 @@
 package com.example.sacc.Service.Impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.sacc.Entity.Account;
 import com.example.sacc.Entity.Answer;
 import com.example.sacc.Entity.Problem;
 import com.example.sacc.Entity.Unit;
@@ -13,8 +14,7 @@ import com.example.sacc.Mapper.ProblemMapper;
 import com.example.sacc.Mapper.UnitMapper;
 import com.example.sacc.Service.StudentService;
 import com.example.sacc.pojo.AnswerObj;
-import com.example.sacc.pojo.ProblemAnswer;
-import com.example.sacc.pojo.ProblemChoice;
+import com.example.sacc.pojo.ProblemVO;
 import com.example.sacc.pojo.UnitVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +37,7 @@ public class StudentServiceImpl implements StudentService {
     private AnswerMapper answerMapper;
     @Autowired
     AccountMapper accountMapper;
+
     @Override
     public Map<String, Object> getUnitList(Integer pageNum, Integer pageSize) {
         Page<Unit> page = new Page<>(pageNum, pageSize);
@@ -55,25 +56,25 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Map<String, Object> questionList(Integer unit) {
-        QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("unit_id", unit);
+    public List<ProblemVO> questionList(Integer unit, Long uid) {
+        QueryWrapper<Problem> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("unit_id",unit);
         List<Problem> problems = problemMapper.selectList(queryWrapper);
-        System.out.println(problems);
-        List<ProblemChoice> problem_choices = new ArrayList<>();
-        List<ProblemAnswer> problem_answers = new ArrayList<>();
+        List<ProblemVO> problemVOS=new ArrayList<>();
         for (Problem problem : problems) {
-            Integer type = problem.getType();
-            if (type == 1) {
-                problem_choices.add(new ProblemChoice(problem));
-            } else {
-                problem_answers.add(new ProblemAnswer(problem));
+            ProblemVO problemVO=new ProblemVO(problem);
+            QueryWrapper<Answer> queryWrapper1=new QueryWrapper<>();
+            queryWrapper1.eq("uid",uid);
+            queryWrapper1.eq("problem_id",problem.getId());
+            Answer answer = answerMapper.selectOne(queryWrapper1);
+            if (answer!=null){
+                problemVO.setContent(answer.getContent());
             }
+            problemVOS.add(problemVO);
         }
-        Map<String, Object> map = new HashMap<>();
-        map.put("answer", problem_answers);
-        map.put("choice", problem_choices);
-        return map;
+//        List problemVO = problemMapper.getProblemVO(unit, uid);
+//        log.info(problemVO.toString());
+        return problemVOS;
     }
 
     @Override
@@ -82,10 +83,23 @@ public class StudentServiceImpl implements StudentService {
         Integer unit = answerObj.getUnit();
         try {
             for (AnswerObj.choiceList choiceList : choicesList) {
-                answerMapper.insert(new Answer(unit, choiceList,uid));
+                UpdateWrapper<Answer> updateWrapper = new UpdateWrapper<>();
+                updateWrapper.eq("problem_id", choiceList.getId());
+                updateWrapper.eq("uid", uid);
+                if (answerMapper.exists(updateWrapper)) {
+                    answerMapper.update(new Answer(unit, choiceList, uid), updateWrapper);
+
+                } else
+                    answerMapper.insert(new Answer(unit, choiceList, uid));
             }
             for (AnswerObj.answerList answerList : answerObj.getAnswerList()) {
-                answerMapper.insert(new Answer(unit, answerList,uid));
+                UpdateWrapper<Answer> updateWrapper = new UpdateWrapper<>();
+                updateWrapper.eq("problem_id", answerList.getId());
+                updateWrapper.eq("uid", uid);
+                if (answerMapper.exists(updateWrapper)) {
+                    answerMapper.update(new Answer(unit, answerList, uid), updateWrapper);
+                } else
+                    answerMapper.insert(new Answer(unit, answerList, uid));
             }
             return true;
         } catch (Exception e) {
@@ -93,7 +107,6 @@ public class StudentServiceImpl implements StudentService {
         }
 
     }
-
 
 
 }

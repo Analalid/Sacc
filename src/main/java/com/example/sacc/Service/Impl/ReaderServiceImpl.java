@@ -77,49 +77,49 @@ public class ReaderServiceImpl implements ReaderService {
             //题目总数tips:和finished一样
             studentDetailVO.setTotal_correcting(finished_num);
             //已经被批改的题目数
-            QueryWrapper<Judge> judgeQueryWrapper=new QueryWrapper<>();
+            QueryWrapper<Judge> judgeQueryWrapper = new QueryWrapper<>();
             //答题人的uid对应的judge总数
-            judgeQueryWrapper.eq("answer_id",uid);
+            judgeQueryWrapper.eq("answer_id", uid);
             Long judge_person_num = judgeMapper.selectCount(judgeQueryWrapper);
             studentDetailVO.setFinished_correcting(judge_person_num);
             studentDetailVOS.add(studentDetailVO);
         }
-        result.put("userList",studentDetailVOS);
+        result.put("userList", studentDetailVOS);
         return result;
     }
 
     @Override
     public Map<String, Object> getOne(String stuId) {
-        QueryWrapper<Account> accountQueryWrapper=new QueryWrapper<>();
-        accountQueryWrapper.eq("stu_id",stuId);
+        QueryWrapper<Account> accountQueryWrapper = new QueryWrapper<>();
+        accountQueryWrapper.eq("stu_id", stuId);
         //通过学号得到uid
         Long uid;
         Account account = accountMapper.selectOne(accountQueryWrapper);
-        if (account==null){
+        if (account == null) {
             throw new RuntimeException("该学号没有对应的账户!");
         }
-        uid=account.getUid();
-        QueryWrapper<Answer> answerQueryWrapper=new QueryWrapper<>();
-        answerQueryWrapper.eq("uid",uid);
+        uid = account.getUid();
+        QueryWrapper<Answer> answerQueryWrapper = new QueryWrapper<>();
+        answerQueryWrapper.eq("uid", uid);
         List<Answer> answersList = answerMapper.selectList(answerQueryWrapper);
-        List<choicesOP> choicesOPS=new ArrayList<>();
-        List<answerOP> answerOPS=new ArrayList<>();
+        List<choicesOP> choicesOPS = new ArrayList<>();
+        List<answerOP> answerOPS = new ArrayList<>();
         for (Answer answer : answersList) {
             Long problemId = answer.getProblemId();
             String content = answer.getContent();
-            QueryWrapper<Problem> problemQueryWrapper=new QueryWrapper<>();
-            problemQueryWrapper.eq("id",problemId);
+            QueryWrapper<Problem> problemQueryWrapper = new QueryWrapper<>();
+            problemQueryWrapper.eq("id", problemId);
             Problem problem = problemMapper.selectOne(problemQueryWrapper);
             Integer type = problem.getType();
-            if(0==type){
-                choicesOPS.add(new choicesOP(problem,content));
-            }else{
-                answerOPS.add(new answerOP(problem,content));
+            if (0 == type) {
+                choicesOPS.add(new choicesOP(problem, content));
+            } else {
+                answerOPS.add(new answerOP(problem, content));
             }
         }
-        Map<String,Object> result=new HashMap<>();
-        result.put("choiceQuestions",choicesOPS);
-        result.put("answerQuestions",answerOPS);
+        Map<String, Object> result = new HashMap<>();
+        result.put("choiceQuestions", choicesOPS);
+        result.put("answerQuestions", answerOPS);
         return result;
     }
 

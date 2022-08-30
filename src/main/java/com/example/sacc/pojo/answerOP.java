@@ -14,7 +14,7 @@ public class answerOP {
     String data;
 
     public answerOP(Problem problem, String content) {
-        this.content=problem.getDescription();
+        this.content=problem.getTitle();
         this.data=content;
     }
 }

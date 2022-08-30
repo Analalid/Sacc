@@ -1,16 +1,15 @@
 package com.example.sacc;
 
-import com.alibaba.excel.EasyExcel;
 import com.example.sacc.Entity.Account;
 import com.example.sacc.Mapper.AccountMapper;
 import com.example.sacc.Mapper.ProblemMapper;
 import com.example.sacc.Mapper.UnitMapper;
 import com.example.sacc.Service.RedisService;
 import com.example.sacc.Service.StudentService;
+import com.example.sacc.pojo.ProblemVO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.ArrayList;
 import java.util.List;

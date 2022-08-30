@@ -12,6 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Setter
 @Getter
+
 public class Problem implements Serializable {
     private static final long serialVersionUID = 532960851268689155L;
     @TableId(value = "id",type = IdType.AUTO)
@@ -24,7 +25,7 @@ public class Problem implements Serializable {
     Long owner_uid;
     Integer type;
     String answer;
-    String description;
+    String title;
     String opt1;
     String opt2;
     String opt3;

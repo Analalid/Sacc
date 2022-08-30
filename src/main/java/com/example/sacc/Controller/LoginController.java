@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class LoginController {
     @Autowired
     private AccountMapper accountMapper;
@@ -38,7 +39,7 @@ public class LoginController {
         String token = jwtUtil.createToken(accountFromDB);
         Map<String, Object> map = new HashMap<>();
         map.put("stu_id", accountFromDB.getStuId());
-        map.put("user_name", account.getUserName());
+        map.put("user_name", accountFromDB.getUserName());
         map.put("role", accountFromDB.getRole().toString());
         map.put("token", token);
 

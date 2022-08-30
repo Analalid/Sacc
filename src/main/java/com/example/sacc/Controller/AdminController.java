@@ -1,31 +1,26 @@
 package com.example.sacc.Controller;
 
-import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.EasyExcelFactory;
-import com.alibaba.excel.ExcelReader;
-import com.alibaba.excel.read.builder.ExcelReaderBuilder;
-import com.alibaba.excel.read.metadata.ReadSheet;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.example.sacc.Entity.Account;
 import com.example.sacc.Entity.Unit;
 import com.example.sacc.Exception.LocalRuntimeException;
+import com.example.sacc.Mapper.AccountMapper;
 import com.example.sacc.Mapper.UnitMapper;
 import com.example.sacc.Service.AccountService;
 import com.example.sacc.Service.Impl.AdminService;
 import com.example.sacc.listener.AccountListener;
 import com.example.sacc.util.saveExcel;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Map;
 
 @RestController
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class AdminController {
     @Autowired
     UnitMapper unitMapper;
@@ -33,12 +28,13 @@ public class AdminController {
     AccountService accountService;
     @Autowired
     AdminService adminService;
-    @PostMapping("root/newUnit")
+    @Autowired
+    AccountMapper accountMapper;
+    @PostMapping("/root/newUnit")
     public String createUnit(@RequestBody Unit unit) {
         unitMapper.insert(unit);
         return "success";
     }
-
     @PostMapping("/root/importReader")
     public String pubggupload(@RequestBody MultipartFile fileList) {
         try {
@@ -62,5 +58,25 @@ public class AdminController {
         String uploadFile = adminService.uploadFile(file);
         System.out.println(uploadFile);
         return "上传题目成功!";
+    }
+    @PostMapping("/root/updateReader")
+    public String updateReader(@RequestParam String stuId){
+        UpdateWrapper<Account> updateWrapper=new UpdateWrapper<>();
+        updateWrapper.eq("stu_id",stuId);
+        Account account = accountMapper.selectOne(updateWrapper);
+        if(account==null)throw new LocalRuntimeException("数据库中没有该用户!");
+        account.setRole(2);
+        accountMapper.update(account,updateWrapper);
+        return "success";
+    }
+    @PostMapping("root/updateGroup")
+    public String updateGroup(@RequestParam String stuId,@RequestParam String group){
+        UpdateWrapper<Account> updateWrapper=new UpdateWrapper<>();
+        updateWrapper.eq("stu_id",stuId);
+        Account account = accountMapper.selectOne(updateWrapper);
+        if(account==null)throw new LocalRuntimeException("数据库中没有该用户!");
+        account.setGrouped(group);
+        accountMapper.update(account,updateWrapper);
+        return "success";
     }
 }

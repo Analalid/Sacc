@@ -27,11 +27,12 @@ public class Account implements Serializable {
     String password;
     @ExcelProperty("权限")
     Integer role;
-
+    String grouped;
     public Account(String stu_id, String user_name, String password, Integer role) {
         this.stuId = stu_id;
         this.userName = user_name;
         this.password = password;
         this.role = role;
+        this.grouped="";
     }
 }
