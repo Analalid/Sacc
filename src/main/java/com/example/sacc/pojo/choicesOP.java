@@ -18,10 +18,10 @@ public class choicesOP {
 
     public choicesOP(Problem problem,String content) {
         this.id=problem.getId();
-        this.fir=problem.getOpt1();
-        this.sec=problem.getOpt2();
-        this.thi=problem.getOpt3();
-        this.fou=problem.getOpt4();
+        this.fir=problem.getA();
+        this.sec=problem.getB();
+        this.thi=problem.getC();
+        this.fou=problem.getD();
         this.data=content;
     }
 }

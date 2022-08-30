@@ -26,10 +26,10 @@ public class Problem implements Serializable {
     Integer type;
     String answer;
     String title;
-    String opt1;
-    String opt2;
-    String opt3;
-    String opt4;
+    String A;
+    String B;
+    String C;
+    String D;
     Integer score;
     @TableField("order_id")
     Integer orderId;

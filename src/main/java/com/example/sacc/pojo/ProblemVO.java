@@ -22,9 +22,9 @@ public class ProblemVO {
         this.id=problem.getId();
         this.type=problem.getType();
         this.title=problem.getTitle();
-        this.opt1=problem.getOpt1();
-        this.opt2=problem.getOpt2();
-        this.opt3=problem.getOpt3();
-        this.opt4=problem.getOpt4();
+        this.opt1=problem.getA();
+        this.opt2=problem.getB();
+        this.opt3=problem.getC();
+        this.opt4=problem.getD();
     }
 }
