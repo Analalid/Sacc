@@ -1,30 +1,37 @@
 package com.example.sacc.pojo;
 
 import com.example.sacc.Entity.Problem;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Data
-@Setter
-@Getter
 public class ProblemVO {
     Long id;
     Integer type;
     String title;
-    String opt1;
-    String opt2;
-    String opt3;
-    String opt4;
-    String content;
 
+    @JsonProperty("A")
+    String A;
+    @JsonProperty("B")
+    String B;
+    @JsonProperty("C")
+    String C;
+    @JsonProperty("D")
+    String D;
+    String content;
+    Integer value;
+    String imgUrl;
+    public void setContent(String content) {
+        this.content = content;
+    }
     public ProblemVO(Problem problem) {
-        this.id=problem.getId();
-        this.type=problem.getType();
-        this.title=problem.getTitle();
-        this.opt1=problem.getOpt1();
-        this.opt2=problem.getOpt2();
-        this.opt3=problem.getOpt3();
-        this.opt4=problem.getOpt4();
+        this.id = problem.getId();
+        this.type = problem.getType();
+        this.title = problem.getTitle();
+        this.A = problem.getOpt1();
+        this.B = problem.getOpt2();
+        this.C = problem.getOpt3();
+        this.D = problem.getOpt4();
+        this.imgUrl=problem.getImgUrl();
     }
 }

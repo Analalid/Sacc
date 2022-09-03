@@ -1,7 +1,6 @@
 package com.example.sacc.Mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.example.sacc.Entity.Problem;
 import com.example.sacc.pojo.ProblemVO;
 import org.apache.ibatis.annotations.Mapper;

@@ -10,14 +10,13 @@ public class saveExcel {
 
         OutputStream os = null;
         try {
-            String path = "D:\\tmpExcel\\";
+            String path = "tmpExcel";
             // 2、保存到临时文件
             // 1K的数据缓冲
             byte[] bs = new byte[1024];
             // 读取到的数据长度
             int len;
             // 输出的文件流保存到本地文件
-
             File tempFile = new File(path);
             if (!tempFile.exists()) {
                 tempFile.mkdirs();
@@ -27,7 +26,6 @@ public class saveExcel {
             while ((len = inputStream.read(bs)) != -1) {
                 os.write(bs, 0, len);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {

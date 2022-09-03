@@ -4,15 +4,16 @@ import com.example.sacc.Entity.Account;
 import com.example.sacc.Mapper.AccountMapper;
 import com.example.sacc.Mapper.ProblemMapper;
 import com.example.sacc.Mapper.UnitMapper;
+import com.example.sacc.Service.ReaderService;
 import com.example.sacc.Service.RedisService;
 import com.example.sacc.Service.StudentService;
-import com.example.sacc.pojo.ProblemVO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
@@ -27,18 +28,28 @@ public class MyBatisPlusTest {
     StudentService studentService;
     @Autowired
     ProblemMapper problemMapper;
+    @Autowired
+    ReaderService readerService;
+
     @Test
-    public void problem(){
+    public void problem() {
         System.out.println(problemMapper.selectList(null));
     }
+
     @Test
-    public void unitTest(){
+    public void unitTest() {
         System.out.println(unitMapper.selectList(null));
     }
+
     @Test
     public void redistest() {
-        redisService.set("key", new Account("1", "1", "1", 0), 30, TimeUnit.DAYS);
+        redisService.set("123", new Account("1", "1", "123456", 2), 30, TimeUnit.DAYS);
 
+    }
+    @Test
+    public void tstsf() {
+        Map<String, Object> one = readerService.getOne("1", 1);
+        System.out.println(one);
     }
 
     @Test

@@ -16,11 +16,12 @@ public class Judge {
     //answer表对应的ID
     Long answerId;
     //    阅卷人ID
-    Long jugerId;
+    Long judgerId;
     Integer score;
 
-    public Judge(ScoreVO scoreVO) {
+    public Judge(ScoreVO scoreVO,Long uid) {
         this.answerId=scoreVO.getId();
         this.score=scoreVO.getScore();
+        this.judgerId=uid;
     }
 }

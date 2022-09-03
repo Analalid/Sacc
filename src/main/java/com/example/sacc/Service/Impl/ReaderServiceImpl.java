@@ -1,19 +1,14 @@
 package com.example.sacc.Service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.sacc.Entity.Account;
-import com.example.sacc.Entity.Answer;
-import com.example.sacc.Entity.Judge;
-import com.example.sacc.Entity.Problem;
-import com.example.sacc.Mapper.AccountMapper;
-import com.example.sacc.Mapper.AnswerMapper;
-import com.example.sacc.Mapper.JudgeMapper;
-import com.example.sacc.Mapper.ProblemMapper;
+import com.example.sacc.Entity.*;
+import com.example.sacc.Exception.LocalRuntimeException;
+import com.example.sacc.Mapper.*;
 import com.example.sacc.Service.ReaderService;
+import com.example.sacc.enums.ErrorEnum;
+import com.example.sacc.pojo.ProblemVO;
 import com.example.sacc.pojo.ScoreVO;
 import com.example.sacc.pojo.StudentDetailVO;
-import com.example.sacc.pojo.answerOP;
-import com.example.sacc.pojo.choicesOP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +27,8 @@ public class ReaderServiceImpl implements ReaderService {
     AnswerMapper answerMapper;
     @Autowired
     JudgeMapper judgeMapper;
+    @Autowired
+    UnitMapper unitMapper;
 
     @Override
     public Map<String, Object> getDetail(Integer unit) {
@@ -89,44 +86,84 @@ public class ReaderServiceImpl implements ReaderService {
     }
 
     @Override
-    public Map<String, Object> getOne(String stuId) {
+    public String getNextStuId(String stuId) {
+        //初步检测是否有该学好对应的用户
+        QueryWrapper<Account> accountQueryWrapper = new QueryWrapper<>();
+        accountQueryWrapper.eq("stu_id", stuId);
+        Account account = accountMapper.selectOne(accountQueryWrapper);
+        if (account == null) throw new LocalRuntimeException(ErrorEnum.N0_SUCH_ACCOUNT);
+        //得到uid
+        Long uid = account.getUid();
+        //初始化返回的用户
+        Account account1=new Account();
+        //遍历直至得到需要的用户
+        do {
+        QueryWrapper<Account> accountQueryWrapper1 = new QueryWrapper<>();
+        accountQueryWrapper1.eq("uid", ++uid);
+        account1 = accountMapper.selectOne(accountQueryWrapper1);
+        if(account1==null)break;
+        }while(account1.getRole()!=1);
+        if (account1 == null) throw new LocalRuntimeException(ErrorEnum.NO_NextStuId);
+        return account1.getStuId();
+    }
+
+    @Override
+    public Map<String, Object> getOne(String stuId, Integer unit) {
         QueryWrapper<Account> accountQueryWrapper = new QueryWrapper<>();
         accountQueryWrapper.eq("stu_id", stuId);
         //通过学号得到uid
         Long uid;
         Account account = accountMapper.selectOne(accountQueryWrapper);
         if (account == null) {
-            throw new RuntimeException("该学号没有对应的账户!");
+            throw new LocalRuntimeException(ErrorEnum.No_ACCOUNT_ERROR);
         }
         uid = account.getUid();
         QueryWrapper<Answer> answerQueryWrapper = new QueryWrapper<>();
         answerQueryWrapper.eq("uid", uid);
-        List<Answer> answersList = answerMapper.selectList(answerQueryWrapper);
-        List<choicesOP> choicesOPS = new ArrayList<>();
-        List<answerOP> answerOPS = new ArrayList<>();
-        for (Answer answer : answersList) {
+        List<Answer> answers = answerMapper.selectList(answerQueryWrapper);
+        List<ProblemVO> problemVOS = new ArrayList<>();
+        for (Answer answer : answers) {
             Long problemId = answer.getProblemId();
-            String content = answer.getContent();
-            QueryWrapper<Problem> problemQueryWrapper = new QueryWrapper<>();
-            problemQueryWrapper.eq("id", problemId);
-            Problem problem = problemMapper.selectOne(problemQueryWrapper);
-            Integer type = problem.getType();
-            if (0 == type) {
-                choicesOPS.add(new choicesOP(problem, content));
-            } else {
-                answerOPS.add(new answerOP(problem, content));
-            }
+            QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("id", problemId);
+            Problem problem = problemMapper.selectOne(queryWrapper);
+            if (problem == null) throw new LocalRuntimeException(ErrorEnum.NO_PROBLEM_ERROR);
+            //得到title,score,imgUrl
+            String title = problem.getTitle();
+            Integer score = problem.getScore();
+            String imgUrl=problem.getImgUrl();
+            problem.setTitle("(" + score + "分)" + title);
+            ProblemVO problemVO = new ProblemVO(problem);
+            problemVO.setContent(answer.getContent());
+            QueryWrapper<Judge> judgeQueryWrapper = new QueryWrapper<>();
+            judgeQueryWrapper.eq("answer_id", answer.getId());
+            Judge judge = judgeMapper.selectOne(judgeQueryWrapper);
+            problemVO.setValue(judge == null ? 0 : judge.getScore());
+            problemVO.setImgUrl(problem.getImgUrl());
+            problemVOS.add(problemVO);
         }
-        Map<String, Object> result = new HashMap<>();
-        result.put("choiceQuestions", choicesOPS);
-        result.put("answerQuestions", answerOPS);
-        return result;
+        Map<String, Object> map = new HashMap();
+        QueryWrapper<Unit> unitQueryWrapper = new QueryWrapper<>();
+        unitQueryWrapper.eq("id", unit);
+        Unit unit1 = unitMapper.selectOne(unitQueryWrapper);
+        map.put("title", unit1.getName());
+        map.put("content", unit1.getDescription());
+        map.put("DataOfOne", problemVOS);
+        return map;
     }
 
     @Override
-    public String insertJudge(List<ScoreVO> scoreVOS) {
+    public String insertJudge(List<ScoreVO> scoreVOS, Long uid) {
+
         for (ScoreVO scoreVO : scoreVOS) {
-            judgeMapper.insert(new Judge(scoreVO));
+            QueryWrapper<Judge> judgeQueryWrapper = new QueryWrapper<>();
+            judgeQueryWrapper.eq("answer_id", scoreVO.getId());
+            Judge judge = judgeMapper.selectOne(judgeQueryWrapper);
+            if (judge == null) {
+                judgeMapper.insert(new Judge(scoreVO, uid));
+            } else {
+                judgeMapper.update(new Judge(scoreVO, uid), judgeQueryWrapper);
+            }
         }
         return "打分数据提交成功!";
     }

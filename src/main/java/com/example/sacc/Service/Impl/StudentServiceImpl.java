@@ -1,6 +1,5 @@
 package com.example.sacc.Service.Impl;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -13,9 +12,9 @@ import com.example.sacc.Mapper.AnswerMapper;
 import com.example.sacc.Mapper.ProblemMapper;
 import com.example.sacc.Mapper.UnitMapper;
 import com.example.sacc.Service.StudentService;
-import com.example.sacc.pojo.AnswerObj;
 import com.example.sacc.pojo.ProblemVO;
 import com.example.sacc.pojo.UnitVO;
+import com.example.sacc.pojo.answerVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,7 +48,6 @@ public class StudentServiceImpl implements StudentService {
             contestVO.setIsLate(false);
             return contestVO;
         }).collect(Collectors.toList());
-
         Map<String, Object> res = new HashMap<>();
         res.put("list", collect);
         return res;
@@ -57,49 +55,34 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<ProblemVO> questionList(Integer unit, Long uid) {
-        QueryWrapper<Problem> queryWrapper=new QueryWrapper<>();
-        queryWrapper.eq("unit_id",unit);
+        QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("unit_id", unit);
         List<Problem> problems = problemMapper.selectList(queryWrapper);
-        List<ProblemVO> problemVOS=new ArrayList<>();
+        List<ProblemVO> problemVOS = new ArrayList<>();
         for (Problem problem : problems) {
-            ProblemVO problemVO=new ProblemVO(problem);
-            QueryWrapper<Answer> queryWrapper1=new QueryWrapper<>();
-            queryWrapper1.eq("uid",uid);
-            queryWrapper1.eq("problem_id",problem.getId());
+            ProblemVO problemVO = new ProblemVO(problem);
+            QueryWrapper<Answer> queryWrapper1 = new QueryWrapper<>();
+            queryWrapper1.eq("uid", uid);
+            queryWrapper1.eq("problem_id", problem.getId());
             Answer answer = answerMapper.selectOne(queryWrapper1);
-            if (answer!=null){
+            if (answer != null) {
                 problemVO.setContent(answer.getContent());
             }
             problemVOS.add(problemVO);
         }
-//        List problemVO = problemMapper.getProblemVO(unit, uid);
-//        log.info(problemVO.toString());
         return problemVOS;
     }
 
     @Override
-    public boolean answer(AnswerObj answerObj, Long uid) {
-        List<AnswerObj.choiceList> choicesList = answerObj.getChoicesList();
-        Integer unit = answerObj.getUnit();
+    public boolean answer(List<answerVO> answerVOS, Long uid, Integer unit) {
         try {
-            for (AnswerObj.choiceList choiceList : choicesList) {
+            for (answerVO answerVO : answerVOS) {
                 UpdateWrapper<Answer> updateWrapper = new UpdateWrapper<>();
-                updateWrapper.eq("problem_id", choiceList.getId());
+                updateWrapper.eq("problem_id", answerVO.getId());
                 updateWrapper.eq("uid", uid);
                 if (answerMapper.exists(updateWrapper)) {
-                    answerMapper.update(new Answer(unit, choiceList, uid), updateWrapper);
-
-                } else
-                    answerMapper.insert(new Answer(unit, choiceList, uid));
-            }
-            for (AnswerObj.answerList answerList : answerObj.getAnswerList()) {
-                UpdateWrapper<Answer> updateWrapper = new UpdateWrapper<>();
-                updateWrapper.eq("problem_id", answerList.getId());
-                updateWrapper.eq("uid", uid);
-                if (answerMapper.exists(updateWrapper)) {
-                    answerMapper.update(new Answer(unit, answerList, uid), updateWrapper);
-                } else
-                    answerMapper.insert(new Answer(unit, answerList, uid));
+                    answerMapper.update(null, updateWrapper.set("content", answerVO.getContent()));
+                } else answerMapper.insert(new Answer(unit, answerVO.getId(), uid, answerVO.getContent()));
             }
             return true;
         } catch (Exception e) {

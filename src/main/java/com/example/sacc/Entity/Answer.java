@@ -2,7 +2,6 @@ package com.example.sacc.Entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.example.sacc.pojo.AnswerObj;
 import lombok.*;
 
 @Data
@@ -18,17 +17,11 @@ public class Answer {
     Long uid;//答题人
     String content;
 
-    public Answer(Integer unit, AnswerObj.choiceList choiceList,Long uid) {
-        this.unitId=unit.longValue();
-        this.problemId=choiceList.getId().longValue();
-        this.uid=uid;
-        this.content=choiceList.mkContent();
-    }
 
-    public Answer(Integer unit,AnswerObj.answerList answerList,Long uid) {
+    public Answer(Integer unit, Integer id, Long uid, String data) {
         this.unitId=unit.longValue();
-        this.problemId=answerList.getId().longValue();
+        this.problemId=id.longValue();
         this.uid=uid;
-        this.content=answerList.getData();
+        this.content=data;
     }
 }

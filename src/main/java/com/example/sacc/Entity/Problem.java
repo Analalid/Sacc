@@ -33,4 +33,18 @@ public class Problem implements Serializable {
     Integer score;
     @TableField("order_id")
     Integer orderId;
+    @TableField("img_url")
+    String imgUrl;
+
+    public Problem(Long unit, Long ownerUid, Integer type,String title,String a, String b, String c, String d,String imgUrls) {
+        this.unitId=unit;
+        this.owner_uid=ownerUid;
+        this.type=type;
+        this.title=title;
+        this.opt1=a;
+        this.opt2=b;
+        this.opt3=c;
+        this.opt4=d;
+        this.imgUrl=imgUrls;
+    }
 }

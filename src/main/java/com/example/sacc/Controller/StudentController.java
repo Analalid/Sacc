@@ -1,18 +1,14 @@
 package com.example.sacc.Controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.example.sacc.Entity.Account;
 import com.example.sacc.Entity.Unit;
 import com.example.sacc.Exception.LocalRuntimeException;
 import com.example.sacc.Mapper.UnitMapper;
 import com.example.sacc.Service.RedisService;
 import com.example.sacc.Service.StudentService;
-import com.example.sacc.pojo.AnswerObj;
-import com.example.sacc.pojo.ProblemVO;
+import com.example.sacc.pojo.answerVO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,10 +48,10 @@ public class StudentController {
     }
 
     @PostMapping("/normal/answer")
-    public String answer(@RequestBody AnswerObj answerObj, HttpServletRequest httpServletRequest) {
+    public String answer(@RequestParam Integer unit,@RequestBody List<answerVO> ans, HttpServletRequest httpServletRequest) {
         String token = httpServletRequest.getHeader("token");
         Account account = (Account) redisService.get(token);
-        if (studentService.answer(answerObj, account.getUid())) {
+        if (studentService.answer(ans,account.getUid(),unit)) {
             return "success";
         } else {
             throw new LocalRuntimeException("提交答案失败");

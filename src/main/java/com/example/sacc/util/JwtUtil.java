@@ -10,7 +10,6 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 import com.example.sacc.Entity.Account;
 import com.example.sacc.Exception.LocalRuntimeException;
 import com.example.sacc.Service.RedisService;
-import com.example.sacc.enums.ErrorEnum;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
